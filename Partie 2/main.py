@@ -36,6 +36,10 @@ def init_program():
     program = create_program_from_file("shader.vert","shader.frag")
     GL.glUseProgram(program)
 
+
+
+
+
 def init_data():
     sommets = np.array(((0, 0, 0), (1, 0, 0), (0, 1, 0)), np.float32)
     # attribution d'une liste d' ́etat (1 indique la cr ́eation d'une seule liste)
@@ -66,6 +70,8 @@ def run(window):
     delta = 0
     beta = 0.2
     while not glfw.window_should_close(window):
+
+
         # nettoyage de la fenêtre : fond et profondeur
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         #  l'affichage se fera ici
@@ -84,6 +90,16 @@ def run(window):
         # GL.glPointSize(5.0)
         # GL.glDrawArrays(GL.GL_POINTS, 0, 3)
         # GL.glDrawArrays(GL.GL_LINE_LOOP, 0, 3)
+
+        # R ́ecup`ere l'identifiant du programme courant
+        prog = GL.glGetIntegerv(GL.GL_CURRENT_PROGRAM)
+        # R ́ecup`ere l'identifiant de la variable translation dans le programme courant
+        loc = GL.glGetUniformLocation(prog, "translation")
+        # V ́erifie que la variable existe
+        if loc == -1 :
+            print("Pas de variable uniforme : translation")
+        # Modifie la variable pour le programme courant
+        GL.glUniform4f(loc, 0,0, 0, -glfw.get_time())
 
         # changement de buffer d'affichage pour éviter un effet de scintillement
         glfw.swap_buffers(window)
