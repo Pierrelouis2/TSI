@@ -7,6 +7,8 @@ import OpenGL.GL as GL
 import glfw
 import numpy as np
 
+global x
+
 def init_window():
     # initialisation de la librairie glfw
     glfw.init()
@@ -65,24 +67,18 @@ def init_data():
 
 def run(window):
     # boucle d'affichage
-    i = 0
-    j =0
-    delta = 0
-    beta = 0.2
+ 
+    gamma = 0
+    z = -1
+    x =0
+    y = 0
     while not glfw.window_should_close(window):
-
 
         # nettoyage de la fenêtre : fond et profondeur
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         #  l'affichage se fera ici
-        i += delta
-        j += beta
-        if i >= 1 :
-            delta = -0.01
-            beta = -0.1
-        elif i <= 0 :
-            delta = 0.01
-            beta = 0.1
+       
+
         GL.glClearColor(0.91,0.8, 0.75, 1.0)
 
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 3)
@@ -91,25 +87,40 @@ def run(window):
         # GL.glDrawArrays(GL.GL_POINTS, 0, 3)
         # GL.glDrawArrays(GL.GL_LINE_LOOP, 0, 3)
 
-        # R ́ecup`ere l'identifiant du programme courant
-        prog = GL.glGetIntegerv(GL.GL_CURRENT_PROGRAM)
-        # R ́ecup`ere l'identifiant de la variable translation dans le programme courant
-        loc = GL.glGetUniformLocation(prog, "translation")
-        # V ́erifie que la variable existe
-        if loc == -1 :
-            print("Pas de variable uniforme : translation")
-        # Modifie la variable pour le programme courant
-        GL.glUniform4f(loc, 0,0, 0, -glfw.get_time())
-
         # changement de buffer d'affichage pour éviter un effet de scintillement
         glfw.swap_buffers(window)
         # gestion des évènements
         glfw.poll_events()
 
+
+
+
+
+
+
+
 def key_callback(win, key, scancode, action, mods):
+    global x
+    x= 0
     # sortie du programme si appui sur la touche 'echap'
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(win, glfw.TRUE)
+
+
+    # R ́ecup`ere l'identifiant du programme courant
+    prog = GL.glGetIntegerv(GL.GL_CURRENT_PROGRAM)
+    # R ́ecup`ere l'identifiant de la variable translation dans le programme courant
+    loc = GL.glGetUniformLocation(prog, "translation")
+    # Verifie que la variable existe
+    if loc == -1 :
+        print("Pas de variable uniforme : translation")
+    if key == glfw.KEY_RIGHT :
+        x += 0.5
+
+
+    GL.glUniform4f(loc,x,0, 0,0)
+
+
 
 def compile_shader(shader_content, shader_type):
     # compilation d'un shader donn ́e selon son type
