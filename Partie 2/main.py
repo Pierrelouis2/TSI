@@ -77,13 +77,13 @@ def run(window):
         elif i <= 0 :
             delta = 0.01
             beta = 0.1
-        GL.glClearColor(i*j,i, j, 1.0)
+        GL.glClearColor(0.91,0.8, 0.75, 1.0)
 
-        #GL.glDrawArrays(GL.GL_LINE_LOOP, 0, 3)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, 3)
         
-        GL.glPointSize(5.0)
-        GL.glDrawArrays(GL.GL_POINTS, 0, 3)
-        GL.glDrawArrays(GL.GL_LINE_LOOP, 0, 3)
+        # GL.glPointSize(5.0)
+        # GL.glDrawArrays(GL.GL_POINTS, 0, 3)
+        # GL.glDrawArrays(GL.GL_LINE_LOOP, 0, 3)
 
         # changement de buffer d'affichage pour éviter un effet de scintillement
         glfw.swap_buffers(window)
