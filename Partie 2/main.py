@@ -33,11 +33,31 @@ def init_context(window):
     print(f"OpenGL: {GL.glGetString(GL.GL_VERSION).decode('ascii')}")
 
 def init_program():
-    program = create_program_from_file('shader.vert','shader.frag')
+    program = create_program_from_file("shader.vert","shader.frag")
     GL.glUseProgram(program)
-    
+
 def init_data():
-    pass
+    sommets = np.array(((0, 0, 0), (1, 0, 0), (0, 1, 0)), np.float32)
+    # attribution d'une liste d' ́etat (1 indique la cr ́eation d'une seule liste)
+    vao = GL.glGenVertexArrays(1)
+    # affectation de la liste d' ́etat courante
+    GL.glBindVertexArray(vao)
+    # attribution d’un buffer de donnees (1 indique la cr ́eation d’un seul buffer)
+    vbo = GL.glGenBuffers(1)
+    # affectation du buffer courant
+    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
+
+    # copie des donnees des sommets sur la carte graphique
+    GL.glBufferData(GL.GL_ARRAY_BUFFER, sommets, GL.GL_STATIC_DRAW)
+
+    # Les deux commandes suivantes sont stock ́ees dans l' ́etat du vao courant
+    # Active l'utilisation des donn ́ees de positions
+    # (le 0 correspond `a la location dans le vertex shader)
+    GL.glEnableVertexAttribArray(0)
+    # Indique comment le buffer courant (dernier vbo "bind ́e")
+    # est utilis ́e pour les positions des sommets
+    GL.glVertexAttribPointer(0, 3, GL.GL_FLOAT, GL.GL_FALSE, 0, None)
+
 
 def run(window):
     # boucle d'affichage
@@ -58,6 +78,9 @@ def run(window):
             delta = 0.01
             beta = 0.1
         GL.glClearColor(i*j,i, j, 1.0)
+
+        GL.glDrawArrays(GL.GL_LINE_LOOP, 0, 3)
+        
         # changement de buffer d'affichage pour éviter un effet de scintillement
         glfw.swap_buffers(window)
         # gestion des évènements
@@ -93,10 +116,8 @@ def create_program( vertex_source, fragment_source):
         GL.glLinkProgram(program_id)
         success = GL.glGetProgramiv(program_id, GL.GL_LINK_STATUS)
         if not success:
-            log = GL.glGetProgramInfoLog(program_id).decode('ascii')
-            print(f'{25*"-"}\nError linking program:\n{log}\n{25*"-"}')
-            GL.glDeleteShader(vs_id)
-            GL.glDeleteShader(fs_id)
+            log = GL.glGetProgramInfoLog(program_id).decode(sommets = np.array(((0, 0, 0), (1, 0, 0), (0, 1, 0)), np.float32))
+
     return program_id
 
 def create_program_from_file(vs_file, fs_file):
