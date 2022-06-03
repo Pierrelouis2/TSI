@@ -100,25 +100,59 @@ def run(window):
 
 
 def key_callback(win, key, scancode, action, mods):
-    global x
-    x= 0
-    # sortie du programme si appui sur la touche 'echap'
+# sortie du programme si appui sur la touche 'echap'
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(win, glfw.TRUE)
 
+    global boolup, booldown, boolleft, boolright
+    global color_Back
 
-    # R ́ecup`ere l'identifiant du programme courant
+    deltaPos = 0.02
+
+    global deltaX, deltaY
+
+    if key == glfw.KEY_UP and action == glfw.PRESS:
+        boolup = True
+    if key == glfw.KEY_RIGHT and action == glfw.PRESS:
+        boolright = True
+    if key == glfw.KEY_DOWN and action == glfw.PRESS:
+        booldown = True
+    if key == glfw.KEY_LEFT and action == glfw.PRESS:
+        boolleft = True
+
+    if key == glfw.KEY_UP and action == glfw.RELEASE:
+        boolup = False
+    if key == glfw.KEY_RIGHT and action == glfw.RELEASE:
+        boolright = False
+    if key == glfw.KEY_DOWN and action == glfw.RELEASE:
+        booldown = False
+    if key == glfw.KEY_LEFT and action == glfw.RELEASE:
+        boolleft = False
+
+    if boolup:
+        deltaY += deltaPos
+    if booldown:
+        deltaY += -deltaPos
+    if boolright:
+        deltaX += deltaPos
+    if boolleft:
+        deltaX += -deltaPos
+
+
+
+    display_callback()
+
+def display_callback():
+    global deltaX, deltaY
+    # Re ́cupe`re l'identifiant du programme courant
     prog = GL.glGetIntegerv(GL.GL_CURRENT_PROGRAM)
-    # R ́ecup`ere l'identifiant de la variable translation dans le programme courant
+    # Re ́cupe`re l'identifiant de la variable translation dans le programme courant
     loc = GL.glGetUniformLocation(prog, "translation")
-    # Verifie que la variable existe
-    if loc == -1 :
+    # Ve ́rifie que la variable existe
+    if loc == -1:
         print("Pas de variable uniforme : translation")
-    if key == glfw.KEY_RIGHT :
-        x += 0.5
-
-
-    GL.glUniform4f(loc,x,0, 0,0)
+    GL.glUniform4f(loc, deltaX, deltaY, 0, 0)
+    # Modifie la variable pour le programme courant
 
 
 
@@ -169,4 +203,11 @@ def main():
     glfw.terminate()
 
 if __name__ == '__main__':
+    deltaX = 0
+    deltaY = 0
+    boolup = False
+    booldown = False
+    boolright = False
+    boolleft = False
+    color_Back = "b"
     main()
