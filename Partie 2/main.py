@@ -6,6 +6,7 @@ from matplotlib.cbook import delete_masked_points
 import OpenGL.GL as GL
 import glfw
 import numpy as np
+import pyrr
 
 global x
 
@@ -67,13 +68,11 @@ def init_data():
 
 def run(window):
     # boucle d'affichage
- 
-    gamma = 0
-    z = -1
-    x =0
-    y = 0
+
     while not glfw.window_should_close(window):
 
+        display_callback()
+    
         # nettoyage de la fenêtre : fond et profondeur
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         #  l'affichage se fera ici
@@ -82,11 +81,8 @@ def run(window):
         GL.glClearColor(0.91,0.8, 0.75, 1.0)
 
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 3)
-        
-        # GL.glPointSize(5.0)
-        # GL.glDrawArrays(GL.GL_POINTS, 0, 3)
-        # GL.glDrawArrays(GL.GL_LINE_LOOP, 0, 3)
 
+        
         # changement de buffer d'affichage pour éviter un effet de scintillement
         glfw.swap_buffers(window)
         # gestion des évènements
@@ -104,12 +100,12 @@ def key_callback(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(win, glfw.TRUE)
 
-    global boolup, booldown, boolleft, boolright
-    global color_Back
+    global boolup, booldown, boolleft, boolright, boolzoomin,boolzoomout
+    global color_Back,rot3
 
     deltaPos = 0.02
 
-    global deltaX, deltaY
+    global deltaX, deltaY,deltaZ,angleZ
 
     if key == glfw.KEY_UP and action == glfw.PRESS:
         boolup = True
@@ -119,6 +115,13 @@ def key_callback(win, key, scancode, action, mods):
         booldown = True
     if key == glfw.KEY_LEFT and action == glfw.PRESS:
         boolleft = True
+    if key == glfw.KEY_F and action == glfw.PRESS:
+        boolzoomin= True
+    if key == glfw.KEY_G and action == glfw.PRESS:
+        boolzoomout= True
+    if key == glfw.KEY_X and action == glfw.PRESS:
+        angleZ += np.pi/6
+
 
     if key == glfw.KEY_UP and action == glfw.RELEASE:
         boolup = False
@@ -128,6 +131,10 @@ def key_callback(win, key, scancode, action, mods):
         booldown = False
     if key == glfw.KEY_LEFT and action == glfw.RELEASE:
         boolleft = False
+    if key == glfw.KEY_F and action == glfw.RELEASE:
+        boolzoomin= False
+    if key == glfw.KEY_G and action == glfw.RELEASE:
+        boolzoomout= False
 
     if boolup:
         deltaY += deltaPos
@@ -137,21 +144,31 @@ def key_callback(win, key, scancode, action, mods):
         deltaX += deltaPos
     if boolleft:
         deltaX += -deltaPos
-
-
+    if boolzoomin :
+        deltaZ += deltaPos
+    if boolzoomout :
+        deltaZ -= deltaPos
 
     display_callback()
 
 def display_callback():
-    global deltaX, deltaY
+    global deltaX, deltaY,deltaZ,rot3,rot,rot4
     # Re ́cupe`re l'identifiant du programme courant
     prog = GL.glGetIntegerv(GL.GL_CURRENT_PROGRAM)
     # Re ́cupe`re l'identifiant de la variable translation dans le programme courant
     loc = GL.glGetUniformLocation(prog, "translation")
+    #rotation
+    rot = GL.glGetUniformLocation(prog, "rotation")
+
+    rot3 = pyrr.matrix33.create_from_z_rotation(angleZ)
+    rot4 = pyrr.matrix44.create_from_matrix33(rot3)
     # Ve ́rifie que la variable existe
     if loc == -1:
         print("Pas de variable uniforme : translation")
-    GL.glUniform4f(loc, deltaX, deltaY, 0, 0)
+    if rot == -1:
+        print("Pas de variable uniforme : rotation")
+    GL.glUniform4f(loc, deltaX, deltaY, 0, deltaZ)
+    GL.glUniformMatrix4fv(rot, 1, GL.GL_FALSE, rot4)
     # Modifie la variable pour le programme courant
 
 
@@ -205,9 +222,15 @@ def main():
 if __name__ == '__main__':
     deltaX = 0
     deltaY = 0
+    deltaZ= 0
+    angleX =0
+    angleY =0
+    angleZ = 0
     boolup = False
     booldown = False
     boolright = False
     boolleft = False
+    boolzoomin = False
+    boolzoomout = False
     color_Back = "b"
     main()
